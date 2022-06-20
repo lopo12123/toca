@@ -11,6 +11,7 @@ fn set_timeout(mut callback: impl FnMut() -> (), timeout: u64) {
 // endregion
 
 /// type of action to play in pipeline
+#[allow(unused)]
 pub enum Action {
     /// mouse move
     MouseMove { delay: u64, target: [i32; 2] },
@@ -94,9 +95,6 @@ impl Toca {
                         }, duration);
                     }, delay);
                 }
-                // _ => {
-                //     panic!("invalid action");
-                // }
             };
 
             p += 1;
