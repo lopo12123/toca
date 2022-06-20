@@ -13,8 +13,10 @@ fn set_timeout(mut callback: impl FnMut() -> (), timeout: u64) {
 /// type of action to play in pipeline
 #[allow(unused)]
 pub enum Action {
-    /// mouse move
-    MouseMove { delay: u64, target: [i32; 2] },
+    /// mouse move absolutely
+    MouseMoveAbsolute { delay: u64, target: [i32; 2] },
+    /// mouse move relatively
+    MouseMoveRelative { delay: u64, offset: [i32; 2] },
     /// mouse left-click
     MouseLeft { delay: u64 },
     /// mouse right-click
@@ -66,9 +68,14 @@ impl Toca {
         let mut p = 0;
         while p < self.actions.len() {
             match self.actions[p] {
-                Action::MouseMove { delay, target } => {
+                Action::MouseMoveAbsolute { delay, target } => {
                     set_timeout(|| {
                         self.instance.mouse_move_to(target[0], target[1]);
+                    }, delay);
+                }
+                Action::MouseMoveRelative { delay, offset } => {
+                    set_timeout(|| {
+                        self.instance.mouse_move_relative(offset[0], offset[1]);
                     }, delay);
                 }
                 Action::MouseLeft { delay } => {
