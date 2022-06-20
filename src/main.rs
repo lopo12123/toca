@@ -1,10 +1,22 @@
 mod toca;
 
-use toca::Toca;
-use crate::toca::Action;
+use enigo::Key;
+use toca::{Action, Toca};
 
+#[allow(unused)]
 fn main() {
     let mut ins = Toca::new();
-    ins.play_single(&Action::MouseMove { delay: 2000, target: [200, 200] });
-    println!("Hello, world!");
+
+    ins.add_actions(&mut vec![
+        Action::MouseMove { delay: 2000, target: [2000, 1300] },
+        Action::MouseLeft { delay: 100 },
+        Action::KeyClick { delay: 100, key: Key::Layout('h') },
+        Action::KeyClick { delay: 100, key: Key::Layout('e') },
+        Action::KeyClick { delay: 100, key: Key::Layout('l') },
+        Action::KeyClick { delay: 100, key: Key::Layout('l') },
+        Action::KeyClick { delay: 100, key: Key::Layout('o') },
+    ]);
+
+    ins.play_actions();
+    println!("done!");
 }
