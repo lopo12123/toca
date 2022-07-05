@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
-use device_query::{DeviceEvents, DeviceState, Keycode};
+use device_query::{DeviceEvents, DeviceQuery, DeviceState, Keycode};
 
 // region keyboard event recorder
 /// single record of keyboard event
@@ -88,6 +88,7 @@ impl KeyboardRecorder {
         // a block loop till the stop key is pressed.
         loop {
             if !*self.recording.lock().unwrap() {
+                self.duration = timeline.elapsed().as_millis();
                 // jump out of the loop, the guard(s) will `drop` then.
                 return KeyboardAction {
                     evs: (*self.ev_queue.lock().unwrap()).clone(),
@@ -117,7 +118,6 @@ pub enum MouseEventName {
     RightUp,
     MidDown,
     MidUp,
-    Move,
 }
 
 #[derive(Copy, Clone)]
@@ -179,13 +179,14 @@ impl MouseRecorder {
 
         // region mouse down
         let ev_queue_down = Arc::clone(&self.ev_queue);
+        let device_state_down = DeviceState::new();
         let _guard_down = device_state.on_mouse_down(move |btn| {
             match *btn {
                 1 => {
                     let mut ev_queue_down = ev_queue_down.lock().unwrap();
                     ev_queue_down.push(MouseEv {
                         ev_name: MouseEventName::LeftDown,
-                        position: (-1, -1),
+                        position: device_state_down.get_mouse().coords,
                         timestamp: timeline.elapsed().as_millis(),
                     });
                 }
@@ -193,7 +194,7 @@ impl MouseRecorder {
                     let mut ev_queue_down = ev_queue_down.lock().unwrap();
                     ev_queue_down.push(MouseEv {
                         ev_name: MouseEventName::RightDown,
-                        position: (-1, -1),
+                        position: device_state_down.get_mouse().coords,
                         timestamp: timeline.elapsed().as_millis(),
                     });
                 }
@@ -201,7 +202,7 @@ impl MouseRecorder {
                     let mut ev_queue_down = ev_queue_down.lock().unwrap();
                     ev_queue_down.push(MouseEv {
                         ev_name: MouseEventName::MidDown,
-                        position: (-1, -1),
+                        position: device_state_down.get_mouse().coords,
                         timestamp: timeline.elapsed().as_millis(),
                     });
                 }
@@ -212,13 +213,14 @@ impl MouseRecorder {
 
         // region mouse up
         let ev_queue_up = Arc::clone(&self.ev_queue);
+        let device_state_up = DeviceState::new();
         let _guard_up = device_state.on_mouse_up(move |btn| {
             match *btn {
                 1 => {
                     let mut ev_queue_up = ev_queue_up.lock().unwrap();
                     ev_queue_up.push(MouseEv {
                         ev_name: MouseEventName::LeftUp,
-                        position: (-1, -1),
+                        position: device_state_up.get_mouse().coords,
                         timestamp: timeline.elapsed().as_millis(),
                     });
                 }
@@ -226,7 +228,7 @@ impl MouseRecorder {
                     let mut ev_queue_up = ev_queue_up.lock().unwrap();
                     ev_queue_up.push(MouseEv {
                         ev_name: MouseEventName::RightUp,
-                        position: (-1, -1),
+                        position: device_state_up.get_mouse().coords,
                         timestamp: timeline.elapsed().as_millis(),
                     });
                 }
@@ -234,7 +236,7 @@ impl MouseRecorder {
                     let mut ev_queue_up = ev_queue_up.lock().unwrap();
                     ev_queue_up.push(MouseEv {
                         ev_name: MouseEventName::MidUp,
-                        position: (-1, -1),
+                        position: device_state_up.get_mouse().coords,
                         timestamp: timeline.elapsed().as_millis(),
                     });
                 }
@@ -243,21 +245,10 @@ impl MouseRecorder {
         });
         // endregion
 
-        // region mouse move
-        let ev_queue_move = Arc::clone(&self.ev_queue);
-        let _guard_move = device_state.on_mouse_move(move |pos| {
-            let mut ev_queue_move = ev_queue_move.lock().unwrap();
-            ev_queue_move.push(MouseEv {
-                ev_name: MouseEventName::Move,
-                position: pos.clone(),
-                timestamp: timeline.elapsed().as_millis(),
-            })
-        });
-        // endregion
-
         // a block loop till the stop key is pressed.
         loop {
             if !*self.recording.lock().unwrap() {
+                self.duration = timeline.elapsed().as_millis();
                 // jump out of the loop, the guard(s) will `drop` then.
                 return MouseAction {
                     evs: (*self.ev_queue.lock().unwrap()).clone(),
@@ -296,7 +287,7 @@ mod test {
         println!("record stop. duration: {}ms", action.till);
 
         for ev in action.evs {
-            println!("[{}ms]: {:?} {:?}", ev.timestamp, ev.ev_name, ev.position);
+            println!("[{}ms]: {:?} at {:?}", ev.timestamp, ev.ev_name, ev.position);
         }
     }
 }
