@@ -1,7 +1,6 @@
 extern crate toca;
 
-use toca::record::KeyboardRecorder;
-use toca::Keycode;
+use toca::{record::KeyboardRecorder, Keycode};
 
 fn main() {
     let mut recorder = KeyboardRecorder::new();
