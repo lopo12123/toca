@@ -7,4 +7,4 @@ edition = "2021"
 
 [dependencies]
 enigo = "0.0.14"
-rdev = "0.5.1"
+device_query = "1.1.1"
