@@ -45,7 +45,7 @@ impl KeyboardRecorder {
         // instance
         let device_state = DeviceState::new();
         // record start time as zero
-        let mut timeline = Instant::now();
+        let timeline = Instant::now();
 
         // We make a clone of the Arc<Mutex<T>> here so we can move it
         // into our closure without moving self into the closure.
