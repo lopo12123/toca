@@ -1,8 +1,46 @@
 use enigo::{Enigo, Key, KeyboardControllable, MouseButton, MouseControllable};
-use super::set_timeout;
+use crate::{record::{KeyboardAction, KeyboardEv}, set_timeout};
+
+// region keyboard event player
+pub struct KeyboardPlayer {
+    /// simulator
+    instance: Enigo,
+    /// duration of the action
+    duration: u128,
+    /// events in the action
+    ev_queue: Vec<KeyboardEv>,
+}
+
+impl KeyboardPlayer {
+    pub fn new() -> KeyboardPlayer {
+        KeyboardPlayer {
+            instance: Enigo::new(),
+            duration: 0,
+            ev_queue: vec![],
+        }
+    }
+
+    /// load an action record to play later.
+    pub fn load(&mut self, action: KeyboardAction) {
+        self.ev_queue = action.evs;
+        self.duration = action.till;
+    }
+
+    /// auto-play keyboard event using simulator.
+    pub fn do_play(&self) {}
+
+    pub fn get_record(&self) -> Vec<KeyboardEv> {
+        self.ev_queue.clone()
+    }
+
+    pub fn get_duration(&self) -> u128 {
+        self.duration
+    }
+}
+// endregion
+
 
 /// type of action to play in pipeline
-#[allow(unused)]
 pub enum Action {
     /// mouse move absolutely
     MouseMoveAbsolute { delay: u64, target: [i32; 2] },
