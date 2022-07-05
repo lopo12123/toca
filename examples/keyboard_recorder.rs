@@ -7,10 +7,10 @@ fn main() {
     let mut recorder = KeyboardRecorder::new();
 
     println!("record start. (press any key to record, press ESC to stop.)");
-    recorder.do_record(Keycode::Escape);
-    println!("record stop.");
+    let action = recorder.do_record(Keycode::Escape);
+    println!("record stop. duration: {}ms", action.till);
 
-    for ev in recorder.get_record() {
+    for ev in action.evs {
         println!("[{}ms]: {} {}", ev.timestamp, (if ev.press { "Press" } else { "Release" }), ev.code);
     }
 }
