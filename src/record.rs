@@ -130,7 +130,7 @@ pub struct MouseEv {
     pub timestamp: u128,
 }
 
-/// the result of `xxx`
+/// the result of `MouseRecorder.do_record`
 pub struct MouseAction {
     pub evs: Vec<MouseEv>,
     pub till: u128,
