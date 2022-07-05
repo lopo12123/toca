@@ -21,12 +21,12 @@ pub struct KeyboardAction {
 }
 
 pub struct KeyboardRecorder {
-    // stop signal
+    /// stop signal
     recording: Arc<Mutex<bool>>,
-    // duration of whole action (in ms)
+    /// duration of whole action (in ms)
     duration: u128,
-    // Here, we've wrapped your vector in a Arc<Mutex<>> so we can
-    // write to it inside our closure.
+    /// Here, we've wrapped your vector in a Arc<Mutex<T>> so we can
+    /// write to it inside our closure.
     ev_queue: Arc<Mutex<Vec<KeyboardEv>>>,
 }
 
@@ -137,12 +137,12 @@ pub struct MouseAction {
 }
 
 pub struct MouseRecorder {
-    // stop signal
+    /// stop signal
     recording: Arc<Mutex<bool>>,
-    // duration of whole action (in ms)
+    /// duration of whole action (in ms)
     duration: u128,
-    // Here, we've wrapped your vector in a Arc<Mutex<>> so we can
-    // write to it inside our closure.
+    /// Here, we've wrapped your vector in a Arc<Mutex<>> so we can
+    /// write to it inside our closure.
     ev_queue: Arc<Mutex<Vec<MouseEv>>>,
 }
 
