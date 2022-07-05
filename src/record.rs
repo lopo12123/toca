@@ -82,6 +82,7 @@ impl KeyboardRecorder {
             })
         });
 
+        // a block loop till the stop key is pressed.
         loop {
             if !*self.recording.lock().unwrap() {
                 // jump out of the loop, the guard(s) will `drop` then.
