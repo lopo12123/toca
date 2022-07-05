@@ -1,14 +1,5 @@
-use std::thread::sleep;
-use std::time::Duration;
 use enigo::{Enigo, Key, KeyboardControllable, MouseButton, MouseControllable};
-
-// region misc
-/// a function like `setTimeout` in JavaScript.
-fn set_timeout(mut callback: impl FnMut() -> (), timeout: u64) {
-    sleep(Duration::from_millis(timeout));
-    callback();
-}
-// endregion
+use super::set_timeout;
 
 /// type of action to play in pipeline
 #[allow(unused)]
