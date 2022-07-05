@@ -13,12 +13,11 @@ fn set_timeout<T>(mut callback: T, ms: u64)
 fn main() {
     let mut recorder = KeyboardRecorder::new();
 
-    // let stop_code = Keycode::Escape;
     println!("record start.");
-    let action = recorder.do_record(Keycode::Escape);
-    println!("record stop. total time is : {}", action.till);
+    recorder.do_record(Keycode::Escape);
+    println!("record stop.");
 
-    for ev in action.evs {
-        println!("[{}ms]: {}", ev.timestamp, ev.code);
+    for ev in recorder.get_record() {
+        println!("[{}ms]: {} {}", ev.timestamp, (if ev.press { "Press" } else { "Release" }), ev.code);
     }
 }
