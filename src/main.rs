@@ -1,12 +1,6 @@
-mod dq_record;
-mod toca;
-
-use enigo::Key;
-use toca::{Action, Toca};
-use dq_record::KeyboardRecorder;
-
 use std::{thread::sleep, time::Duration};
 use device_query::Keycode;
+use toca::record::KeyboardRecorder;
 
 /// 顶层模块下, 供子模块调用
 fn set_timeout<T>(mut callback: T, ms: u64)
@@ -21,10 +15,10 @@ fn main() {
 
     // let stop_code = Keycode::Escape;
     println!("record start.");
-    recorder.start_record(Keycode::Escape);
-    println!("record stop.");
+    let action = recorder.do_record(Keycode::Escape);
+    println!("record stop. total time is : {}", action.till);
 
-    for ev in recorder.get_record() {
+    for ev in action.evs {
         println!("[{}ms]: {}", ev.timestamp, ev.code);
     }
 }
