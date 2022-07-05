@@ -1,6 +1,4 @@
-use std::{thread::sleep, time::Duration};
-use device_query::Keycode;
-use toca::record::KeyboardRecorder;
+use toca::{record::KeyboardRecorder, Keycode};
 
 #[allow(unused)]
 fn main() {
