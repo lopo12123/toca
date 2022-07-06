@@ -11,20 +11,20 @@ pub struct KeyboardEv {
     /// press or release
     pub press: bool,
     /// timestamp from the start
-    pub timestamp: u128,
+    pub timestamp: u64,
 }
 
 /// the result of `KeyboardRecorder.do_record`
 pub struct KeyboardAction {
     pub evs: Vec<KeyboardEv>,
-    pub till: u128,
+    pub till: u64,
 }
 
 pub struct KeyboardRecorder {
     /// stop signal
     recording: Arc<Mutex<bool>>,
     /// duration of whole action (in ms)
-    duration: u128,
+    duration: u64,
     /// Here, we've wrapped your vector in a Arc<Mutex<T>> so we can
     /// write to it inside our closure.
     ev_queue: Arc<Mutex<Vec<KeyboardEv>>>,
@@ -70,7 +70,7 @@ impl KeyboardRecorder {
             ev_queue_down.push(KeyboardEv {
                 code: key.clone(),
                 press: true,
-                timestamp: timeline.elapsed().as_millis(),
+                timestamp: timeline.elapsed().as_millis() as u64,
             })
         });
 
@@ -81,14 +81,14 @@ impl KeyboardRecorder {
             ev_queue_up.push(KeyboardEv {
                 code: key.clone(),
                 press: false,
-                timestamp: timeline.elapsed().as_millis(),
+                timestamp: timeline.elapsed().as_millis() as u64,
             })
         });
 
         // a block loop till the stop key is pressed.
         loop {
             if !*self.recording.lock().unwrap() {
-                self.duration = timeline.elapsed().as_millis();
+                self.duration = timeline.elapsed().as_millis() as u64;
                 // jump out of the loop, the guard(s) will `drop` then.
                 return KeyboardAction {
                     evs: (*self.ev_queue.lock().unwrap()).clone(),
@@ -102,7 +102,7 @@ impl KeyboardRecorder {
         (*self.ev_queue.lock().unwrap()).clone()
     }
 
-    pub fn get_duration(&self) -> u128 {
+    pub fn get_duration(&self) -> u64 {
         self.duration
     }
 }
@@ -127,20 +127,20 @@ pub struct MouseEv {
     /// position
     pub position: (i32, i32),
     /// timestamp from the start
-    pub timestamp: u128,
+    pub timestamp: u64,
 }
 
 /// the result of `MouseRecorder.do_record`
 pub struct MouseAction {
     pub evs: Vec<MouseEv>,
-    pub till: u128,
+    pub till: u64,
 }
 
 pub struct MouseRecorder {
     /// stop signal
     recording: Arc<Mutex<bool>>,
     /// duration of whole action (in ms)
-    duration: u128,
+    duration: u64,
     /// Here, we've wrapped your vector in a Arc<Mutex<>> so we can
     /// write to it inside our closure.
     ev_queue: Arc<Mutex<Vec<MouseEv>>>,
@@ -187,7 +187,7 @@ impl MouseRecorder {
                     ev_queue_down.push(MouseEv {
                         ev_name: MouseEventName::LeftDown,
                         position: device_state_down.get_mouse().coords,
-                        timestamp: timeline.elapsed().as_millis(),
+                        timestamp: timeline.elapsed().as_millis() as u64,
                     });
                 }
                 2 => {
@@ -195,7 +195,7 @@ impl MouseRecorder {
                     ev_queue_down.push(MouseEv {
                         ev_name: MouseEventName::RightDown,
                         position: device_state_down.get_mouse().coords,
-                        timestamp: timeline.elapsed().as_millis(),
+                        timestamp: timeline.elapsed().as_millis() as u64,
                     });
                 }
                 3 => {
@@ -203,7 +203,7 @@ impl MouseRecorder {
                     ev_queue_down.push(MouseEv {
                         ev_name: MouseEventName::MidDown,
                         position: device_state_down.get_mouse().coords,
-                        timestamp: timeline.elapsed().as_millis(),
+                        timestamp: timeline.elapsed().as_millis() as u64,
                     });
                 }
                 _ => ()  // ignore other button event
@@ -221,7 +221,7 @@ impl MouseRecorder {
                     ev_queue_up.push(MouseEv {
                         ev_name: MouseEventName::LeftUp,
                         position: device_state_up.get_mouse().coords,
-                        timestamp: timeline.elapsed().as_millis(),
+                        timestamp: timeline.elapsed().as_millis() as u64,
                     });
                 }
                 2 => {
@@ -229,7 +229,7 @@ impl MouseRecorder {
                     ev_queue_up.push(MouseEv {
                         ev_name: MouseEventName::RightUp,
                         position: device_state_up.get_mouse().coords,
-                        timestamp: timeline.elapsed().as_millis(),
+                        timestamp: timeline.elapsed().as_millis() as u64,
                     });
                 }
                 3 => {
@@ -237,7 +237,7 @@ impl MouseRecorder {
                     ev_queue_up.push(MouseEv {
                         ev_name: MouseEventName::MidUp,
                         position: device_state_up.get_mouse().coords,
-                        timestamp: timeline.elapsed().as_millis(),
+                        timestamp: timeline.elapsed().as_millis() as u64,
                     });
                 }
                 _ => ()  // ignore other button event
@@ -248,7 +248,7 @@ impl MouseRecorder {
         // a block loop till the stop key is pressed.
         loop {
             if !*self.recording.lock().unwrap() {
-                self.duration = timeline.elapsed().as_millis();
+                self.duration = timeline.elapsed().as_millis() as u64;
                 // jump out of the loop, the guard(s) will `drop` then.
                 return MouseAction {
                     evs: (*self.ev_queue.lock().unwrap()).clone(),
