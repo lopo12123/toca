@@ -102,7 +102,9 @@ impl KeyboardMapper {
             DqKey::Numpad8 => Some(EnigoKey::Layout('8')),
             DqKey::Numpad9 => Some(EnigoKey::Layout('9')),
             DqKey::NumpadAdd => Some(EnigoKey::Layout('+')),
-            DqKey::NumpadMultiply => Some(EnigoKey::Layout('-')),
+            DqKey::NumpadSubtract => Some(EnigoKey::Layout('-')),
+            DqKey::NumpadMultiply => Some(EnigoKey::Layout('*')),
+            DqKey::NumpadDivide => Some(EnigoKey::Layout('/')),
             _ => None
         }
     }
