@@ -10,5 +10,6 @@ pub fn set_timeout<T>(mut callback: T, ms: u64)
 
 pub use device_query::Keycode;
 
+mod mapper;
 pub mod record;
 pub mod display;
