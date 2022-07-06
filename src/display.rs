@@ -6,7 +6,7 @@ pub struct KeyboardPlayer {
     /// simulator
     instance: Enigo,
     /// duration of the action
-    duration: u128,
+    duration: u64,
     /// events in the action
     ev_queue: Vec<KeyboardEv>,
 }
@@ -27,13 +27,23 @@ impl KeyboardPlayer {
     }
 
     /// auto-play keyboard event using simulator.
-    pub fn do_play(&self) {}
+    pub fn do_play(&self) {
+        let mut last_act_time = 0;
+        if self.ev_queue.len() > 0 && self.duration > 0 {
+            for ev in self.ev_queue.iter() {
+                set_timeout(|| {
+                    // todo
+                }, ev.timestamp - last_act_time);
+                last_act_time = ev.timestamp;
+            }
+        }
+    }
 
     pub fn get_record(&self) -> Vec<KeyboardEv> {
         self.ev_queue.clone()
     }
 
-    pub fn get_duration(&self) -> u128 {
+    pub fn get_duration(&self) -> u64 {
         self.duration
     }
 }
