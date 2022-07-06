@@ -1,5 +1,9 @@
 use enigo::{Enigo, Key, KeyboardControllable, MouseButton, MouseControllable};
-use crate::{record::{KeyboardAction, KeyboardEv}, set_timeout};
+use crate::{
+    mapper::KeyboardMapper,
+    record::{KeyboardAction, KeyboardEv},
+    set_timeout,
+};
 
 // region keyboard event player
 pub struct KeyboardPlayer {
@@ -27,12 +31,18 @@ impl KeyboardPlayer {
     }
 
     /// auto-play keyboard event using simulator.
-    pub fn do_play(&self) {
+    pub fn do_play(&mut self) {
         let mut last_act_time = 0;
         if self.ev_queue.len() > 0 && self.duration > 0 {
             for ev in self.ev_queue.iter() {
                 set_timeout(|| {
-                    // todo
+                    match KeyboardMapper::dq_to_enigo(ev.code) {
+                        Some(key) => {
+                            println!("going to press: {:?}", key);
+                            self.instance.key_click(key);
+                        }
+                        None => ()
+                    }
                 }, ev.timestamp - last_act_time);
                 last_act_time = ev.timestamp;
             }
