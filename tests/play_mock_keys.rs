@@ -1,5 +1,5 @@
 use device_query::Keycode;
-use enigo::{Key, KeyboardControllable};
+use enigo::{KeyboardControllable};
 use toca::display::KeyboardPlayer;
 use toca::record::{KeyboardAction, KeyboardEv};
 use toca::set_timeout;
@@ -9,7 +9,7 @@ fn play_mock_keys() {
     let mock_key_action = KeyboardAction {
         evs: vec![
             KeyboardEv {
-                code: Keycode::A,
+                code: Keycode::LShift,
                 press: true,
                 timestamp: 1_000,
             },
@@ -19,8 +19,8 @@ fn play_mock_keys() {
                 timestamp: 2_000,
             },
             KeyboardEv {
-                code: Keycode::Comma,
-                press: true,
+                code: Keycode::LShift,
+                press: false,
                 timestamp: 3_000,
             },
         ],
