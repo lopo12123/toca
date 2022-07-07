@@ -11,8 +11,6 @@ pub fn set_timeout<T>(mut callback: T, ms: u64)
     callback();
 }
 
-mod global_store;
-
 pub mod mapper;
 pub mod record;
 pub mod display;
