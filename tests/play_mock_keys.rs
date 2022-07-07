@@ -27,9 +27,22 @@ fn play_mock_keys() {
         till: 3_000,
     };
     let mut player = KeyboardPlayer::new();
-    player.load(mock_key_action);
 
-    set_timeout(|| {
-        player.do_play();
-    }, 3000);
+    match player.load(mock_key_action) {
+        Ok(_) => {
+            set_timeout(|| {
+                match player.do_play() {
+                    Ok(_) => {
+                        println!("success.")
+                    }
+                    Err(_) => {
+                        println!("failed.")
+                    }
+                }
+            }, 3000);
+        }
+        Err(_) => {
+            println!("error when load actions.");
+        }
+    };
 }
