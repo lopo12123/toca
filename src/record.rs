@@ -39,6 +39,15 @@ impl KeyboardRecorder {
         }
     }
 
+    pub fn get_record(&self) -> Vec<KeyboardEv> {
+        (*self.ev_queue.lock().unwrap()).clone()
+    }
+
+    pub fn get_duration(&self) -> u64 {
+        self.duration
+    }
+
+    /// start recording mouse events.
     pub fn do_record(&mut self, stop_code: Keycode) -> KeyboardAction {
         // start recording: clear records and duration, set the signal
         *self.ev_queue.lock().unwrap() = vec![];
@@ -98,13 +107,10 @@ impl KeyboardRecorder {
         }
     }
 
-    pub fn get_record(&self) -> Vec<KeyboardEv> {
-        (*self.ev_queue.lock().unwrap()).clone()
-    }
-
-    pub fn get_duration(&self) -> u64 {
-        self.duration
-    }
+    // abort current record and record all events till now.
+    // pub fn do_abort(&mut self) {
+    //     *self.recording.lock().unwrap() = false;
+    // }
 }
 // endregion
 
@@ -155,6 +161,15 @@ impl MouseRecorder {
         }
     }
 
+    pub fn get_record(&self) -> Vec<MouseEv> {
+        (*self.ev_queue.lock().unwrap()).clone()
+    }
+
+    pub fn get_duration(&self) -> u64 {
+        self.duration
+    }
+
+    /// start recording mouse events.
     pub fn do_record(&mut self, stop_code: Keycode) -> MouseAction {
         // start recording: clear records and duration, set the signal
         *self.ev_queue.lock().unwrap() = vec![];
@@ -257,12 +272,19 @@ impl MouseRecorder {
             }
         }
     }
+
+    // abort current record and record all events till now.
+    // pub fn do_abort(&mut self) {
+    //     *self.recording.lock().unwrap() = false;
+    // }
 }
 // endregion
 
 // region unit test
 #[cfg(test)]
 mod test {
+    use std::thread::spawn;
+    use crate::set_timeout;
     use super::*;
 
     /// 键盘行为录制测试 - 无断言, 需要自行判断输出是否正确
