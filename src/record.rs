@@ -40,7 +40,10 @@ impl KeyboardRecorder {
         (*self.ev_queue.lock().unwrap()).clone()
     }
 
-    /// start recording mouse events.
+    /// Doing record work in main thread.
+    /// Anyway, the listener(s) is working in separator thread(s).
+    /// But the guard(s) of listener(s) can only live in the scope of this function.
+    /// So this call need to be 'block' until you press the key representing 'stop_code'.
     pub fn do_record(&mut self, stop_code: Keycode) -> KeyboardAction {
         // start recording: clear records and set the signal
         *self.ev_queue.lock().unwrap() = vec![];
@@ -98,9 +101,14 @@ impl KeyboardRecorder {
         }
     }
 
-    // abort current record and record all events till now.
-    // pub fn do_abort(&mut self) {
-    //     *self.recording.lock().unwrap() = false;
+    // Do record work in separator thread(s).
+    // The async version of `do_record`, but it is unsafe somehow, logically.
+    // I use a signal to make sure the main thread lives longer then the record thread.
+    // But that does not means the life of `do_record_async` is longer then record thread (in face, this call will return immediately)
+    // For example, maybe there is a `while signal {}` loop after this call, and the signal will be changed to `false` inside the record thread.
+    // Therefore i can say the main thread is always lives longer then the record thread.
+    // pub fn do_record_async(&mut self, stop_code: Keycode) {
+    //
     // }
 }
 // endregion
@@ -153,7 +161,10 @@ impl MouseRecorder {
         (*self.ev_queue.lock().unwrap()).clone()
     }
 
-    /// start recording mouse events.
+    /// Doing record work in main thread.
+    /// Anyway, the listener(s) is working in separator thread(s).
+    /// But the guard(s) of listener(s) can only live in the scope of this function.
+    /// So this call need to be 'block' until you press the key representing 'stop_code'.
     pub fn do_record(&mut self, stop_code: Keycode) -> MouseAction {
         // start recording: clear records and set the signal
         *self.ev_queue.lock().unwrap() = vec![];
@@ -254,19 +265,12 @@ impl MouseRecorder {
             }
         }
     }
-
-    // abort current record and record all events till now.
-    // pub fn do_abort(&mut self) {
-    //     *self.recording.lock().unwrap() = false;
-    // }
 }
 // endregion
 
 // region unit test
 #[cfg(test)]
 mod test {
-    use std::thread::spawn;
-    use crate::set_timeout;
     use super::*;
 
     /// 键盘行为录制测试 - 无断言, 需要自行判断输出是否正确
