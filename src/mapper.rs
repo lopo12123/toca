@@ -1,6 +1,7 @@
-use device_query::{Keycode as DqKey};
-use enigo::{Key as EnigoKey};
+use device_query::{Keycode as DqKey, MouseButton as DqButton};
+use enigo::{Key as EnigoKey, MouseButton as EnigoButton};
 
+// region keyboard mapper
 pub struct KeyboardMapper {}
 
 #[allow(unused)]
@@ -592,3 +593,71 @@ impl KeyboardMapper {
         }
     }
 }
+// endregion
+
+// region mouse mapper
+pub struct MouseMapper {}
+
+#[allow(unused)]
+impl MouseMapper {
+    /// `MouseButton` in `device_query` => `MouseButton` in `Enigo`
+    pub fn dq_to_enigo(button_in_dq: DqButton) -> Option<EnigoButton> {
+        match button_in_dq {
+            1 => Some(EnigoButton::Left),
+            2 => Some(EnigoButton::Right),
+            3 => Some(EnigoButton::Middle),
+            _ => None
+        }
+    }
+
+    /// `MouseButton` in `Enigo` => `MouseButton` in `device_query`
+    pub fn enigo_to_dq(button_in_enigo: EnigoButton) -> Option<DqButton> {
+        match button_in_enigo {
+            EnigoButton::Left => Some(1),
+            EnigoButton::Right => Some(2),
+            EnigoButton::Middle => Some(3),
+            _ => None
+        }
+    }
+
+    /// `MouseButton` in `device_query` => `button` in frontend
+    pub fn dq_to_front(button_in_dq: DqButton) -> Option<usize> {
+        match button_in_dq {
+            1 => Some(0),
+            2 => Some(2),
+            3 => Some(1),
+            _ => None
+        }
+    }
+
+    /// `button` in frontend => `MouseButton` in `device_query`
+    pub fn front_to_dq(code_in_front: usize) -> Option<DqButton> {
+        match code_in_front {
+            0 => Some(1),
+            2 => Some(2),
+            1 => Some(3),
+            _ => None
+        }
+    }
+
+    /// `MouseButton` in `Enigo` => `button` in frontend
+    pub fn enigo_to_front(button_in_enigo: EnigoButton) -> Option<usize> {
+        match button_in_enigo {
+            EnigoButton::Left => Some(0),
+            EnigoButton::Right => Some(2),
+            EnigoButton::Middle => Some(1),
+            _ => None
+        }
+    }
+
+    /// `button` in frontend => `MouseButton` in `Enigo`
+    pub fn front_to_enigo(code_in_front: usize) -> Option<EnigoButton> {
+        match code_in_front {
+            0 => Some(EnigoButton::Left),
+            2 => Some(EnigoButton::Right),
+            1 => Some(EnigoButton::Middle),
+            _ => None
+        }
+    }
+}
+// endregion
