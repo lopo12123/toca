@@ -6,5 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-enigo = "0.0.14"
 device_query = "1.1.1"
+enigo = "0.0.14"
+lazy_static = "1.4.0"
