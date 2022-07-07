@@ -1,3 +1,4 @@
+use std::sync::{Arc, Mutex};
 use enigo::{Enigo, KeyboardControllable};
 use crate::{
     mapper::KeyboardMapper,
@@ -9,6 +10,8 @@ use crate::{
 pub struct KeyboardPlayer {
     /// simulator
     instance: Enigo,
+    /// if is playing
+    playing: Arc<Mutex<bool>>,
     /// duration of the action
     duration: u64,
     /// events in the action
@@ -19,34 +22,56 @@ impl KeyboardPlayer {
     pub fn new() -> KeyboardPlayer {
         KeyboardPlayer {
             instance: Enigo::new(),
+            playing: Arc::new(Mutex::new(false)),
             duration: 0,
             ev_queue: vec![],
         }
     }
 
     /// load an action record to play later.
-    pub fn load(&mut self, action: KeyboardAction) {
-        self.ev_queue = action.evs;
-        self.duration = action.till;
+    pub fn load(&mut self, action: KeyboardAction) -> Result<(), ()> {
+        return if *self.playing.lock().unwrap() {
+            Err(())
+        } else {
+            self.ev_queue = action.evs;
+            self.duration = action.till;
+            Ok(())
+        };
     }
 
     /// auto-play keyboard event using simulator.
-    pub fn do_play(&mut self) {
-        let mut last_act_time = 0;
-        if self.ev_queue.len() > 0 && self.duration > 0 {
-            for ev in self.ev_queue.iter() {
-                set_timeout(|| {
-                    match KeyboardMapper::dq_to_enigo(ev.code) {
-                        Some(key) => {
-                            println!("going to press: {:?}", key);
-                            self.instance.key_click(key);
+    pub fn do_play(&mut self) -> Result<(), ()> {
+        return if *self.playing.lock().unwrap() {
+            Err(())
+        } else {
+            *self.playing.lock().unwrap() = true;
+            let mut last_act_time = 0;
+            if self.ev_queue.len() > 0 && self.duration > 0 {
+                for ev in self.ev_queue.iter() {
+                    if ev.timestamp <= last_act_time {
+                        match KeyboardMapper::dq_to_enigo(ev.code) {
+                            Some(key) => {
+                                self.instance.key_click(key);
+                            }
+                            None => ()
                         }
-                        None => ()
+                    } else {
+                        set_timeout(|| {
+                            match KeyboardMapper::dq_to_enigo(ev.code) {
+                                Some(key) => {
+                                    self.instance.key_click(key);
+                                }
+                                None => ()
+                            }
+                        }, ev.timestamp - last_act_time);
                     }
-                }, ev.timestamp - last_act_time);
-                last_act_time = ev.timestamp;
+
+                    last_act_time = ev.timestamp;
+                }
             }
-        }
+            *self.playing.lock().unwrap() = false;
+            Ok(())
+        };
     }
 
     pub fn get_record(&self) -> Vec<KeyboardEv> {
@@ -59,8 +84,7 @@ impl KeyboardPlayer {
 }
 // endregion
 
-// region unit test
-/// 使用覆盖率测试, 确保所有的映射都是有效的
+// region unit test 此处使用了覆盖率测试, 确保所有的映射都是有效的
 #[cfg(test)]
 mod test {
     use super::*;
@@ -168,5 +192,4 @@ mod test {
         }, 3000);
     }
 }
-
 // endregion
