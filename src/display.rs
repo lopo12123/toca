@@ -60,13 +60,59 @@ impl KeyboardPlayer {
 // endregion
 
 // region unit test
+/// 使用覆盖率测试, 确保所有的映射都是有效的
 #[cfg(test)]
 mod test {
     use super::*;
     use enigo::Key;
 
+    /// **pass** 0-9 a-z
     #[test]
-    fn enigo_key_visible() {
+    fn enigo_key_layout() {
+        let mut en = enigo::Enigo::new();
+        set_timeout(|| {
+            en.key_click(Key::Layout('0'));
+            en.key_click(Key::Layout('1'));
+            en.key_click(Key::Layout('2'));
+            en.key_click(Key::Layout('3'));
+            en.key_click(Key::Layout('4'));
+            en.key_click(Key::Layout('5'));
+            en.key_click(Key::Layout('6'));
+            en.key_click(Key::Layout('7'));
+            en.key_click(Key::Layout('8'));
+            en.key_click(Key::Layout('9'));
+            en.key_click(Key::Layout('a'));
+            en.key_click(Key::Layout('b'));
+            en.key_click(Key::Layout('c'));
+            en.key_click(Key::Layout('d'));
+            en.key_click(Key::Layout('e'));
+            en.key_click(Key::Layout('f'));
+            en.key_click(Key::Layout('g'));
+            en.key_click(Key::Layout('h'));
+            en.key_click(Key::Layout('i'));
+            en.key_click(Key::Layout('j'));
+            en.key_click(Key::Layout('k'));
+            en.key_click(Key::Layout('l'));
+            en.key_click(Key::Layout('m'));
+            en.key_click(Key::Layout('n'));
+            en.key_click(Key::Layout('o'));
+            en.key_click(Key::Layout('p'));
+            en.key_click(Key::Layout('q'));
+            en.key_click(Key::Layout('r'));
+            en.key_click(Key::Layout('s'));
+            en.key_click(Key::Layout('t'));
+            en.key_click(Key::Layout('u'));
+            en.key_click(Key::Layout('v'));
+            en.key_click(Key::Layout('w'));
+            en.key_click(Key::Layout('x'));
+            en.key_click(Key::Layout('y'));
+            en.key_click(Key::Layout('z'));
+        }, 3000);
+    }
+
+    /// **pass** `-=[],.;'/\
+    #[test]
+    fn enigo_key_misc() {
         let mut en = enigo::Enigo::new();
         set_timeout(|| {
             en.key_click(Key::Layout('`'));
@@ -83,6 +129,7 @@ mod test {
         }, 3000);
     }
 
+    /// **pass** F1-F12 etc.
     #[test]
     fn enigo_key_invisible() {
         let mut en = enigo::Enigo::new();
@@ -118,9 +165,7 @@ mod test {
             en.key_click(Key::PageUp);
             en.key_click(Key::PageDown);
             en.key_click(Key::End);
-
-            en.key_click(Key::Meta);
-        }, 6000);
+        }, 3000);
     }
 }
 
