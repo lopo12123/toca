@@ -7,18 +7,6 @@ pub struct KeyboardMapper {}
 
 #[allow(unused)]
 impl KeyboardMapper {
-    /// parse custom enum `MouseEventName` to `(EnigoButton, is_press)`
-    pub fn parse_ev_name(ev_name: MouseEventName) -> (EnigoButton, bool) {
-        match ev_name {
-            MouseEventName::LeftDown => (EnigoButton::Left, true),
-            MouseEventName::LeftUp => (EnigoButton::Left, false),
-            MouseEventName::RightDown => (EnigoButton::Right, false),
-            MouseEventName::RightUp => (EnigoButton::Right, false),
-            MouseEventName::MidDown => (EnigoButton::Middle, false),
-            MouseEventName::MidUp => (EnigoButton::Middle, false),
-        }
-    }
-
     /// `Keycode` in `device_query` => `Key` in `Enigo`
     pub fn dq_to_enigo(key_in_dq: DqKey) -> Option<EnigoKey> {
         match key_in_dq {
@@ -613,6 +601,18 @@ pub struct MouseMapper {}
 
 #[allow(unused)]
 impl MouseMapper {
+    /// parse custom enum `MouseEventName` to `(EnigoButton, is_press)`
+    pub fn parse_ev_name(ev_name: MouseEventName) -> (EnigoButton, bool) {
+        match ev_name {
+            MouseEventName::LeftDown => (EnigoButton::Left, true),
+            MouseEventName::LeftUp => (EnigoButton::Left, false),
+            MouseEventName::RightDown => (EnigoButton::Right, false),
+            MouseEventName::RightUp => (EnigoButton::Right, false),
+            MouseEventName::MidDown => (EnigoButton::Middle, false),
+            MouseEventName::MidUp => (EnigoButton::Middle, false),
+        }
+    }
+
     /// `MouseButton` in `device_query` => `MouseButton` in `Enigo`
     pub fn dq_to_enigo(button_in_dq: DqButton) -> Option<EnigoButton> {
         match button_in_dq {
