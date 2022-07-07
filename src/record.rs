@@ -265,6 +265,7 @@ impl MouseRecorder {
 mod test {
     use super::*;
 
+    /// 键盘行为录制测试 - 无断言, 需要自行判断输出是否正确
     #[test]
     fn keyboard_recorder_test() {
         let mut recorder = KeyboardRecorder::new();
@@ -278,6 +279,7 @@ mod test {
         }
     }
 
+    /// 鼠标行为录制测试 - 无断言, 需要自行判断输出是否正确
     #[test]
     fn mouse_recorder_test() {
         let mut recorder = MouseRecorder::new();
