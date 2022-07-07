@@ -3,6 +3,7 @@ use enigo::{Key as EnigoKey};
 
 pub struct KeyboardMapper {}
 
+#[allow(unused)]
 impl KeyboardMapper {
     /// `Keycode` in `device_query` => `Key` in `Enigo`
     pub fn dq_to_enigo(key_in_dq: DqKey) -> Option<EnigoKey> {
@@ -78,7 +79,7 @@ impl KeyboardMapper {
             DqKey::PageUp => Some(EnigoKey::PageUp),
             DqKey::PageDown => Some(EnigoKey::PageDown),
             DqKey::End => Some(EnigoKey::End),
-            // maybe incorrect, but does correct in typing
+            // belows have passed the simulate test
             DqKey::Grave => Some(EnigoKey::Layout('`')),
             DqKey::Minus | DqKey::NumpadSubtract => Some(EnigoKey::Layout('-')),
             DqKey::Equal => Some(EnigoKey::Layout('=')),
@@ -179,7 +180,7 @@ impl KeyboardMapper {
             EnigoKey::PageUp => Some(DqKey::PageUp),
             EnigoKey::PageDown => Some(DqKey::PageDown),
             EnigoKey::End => Some(DqKey::End),
-            // maybe incorrect, but does correct in typing
+            // belows have passed the simulate test
             EnigoKey::Layout('`') => Some(DqKey::Grave),
             EnigoKey::Layout('-') => Some(DqKey::Minus),
             EnigoKey::Layout('=') => Some(DqKey::Equal),
@@ -272,7 +273,7 @@ impl KeyboardMapper {
             DqKey::PageUp => Some("PageUp"),
             DqKey::PageDown => Some("PageDown"),
             DqKey::End => Some("End"),
-            // maybe incorrect, but does correct in typing
+            // belows have passed the simulate test
             DqKey::Grave => Some("Backquote"),
             DqKey::Minus => Some("Minus"),
             DqKey::Equal => Some("Equal"),
@@ -380,7 +381,7 @@ impl KeyboardMapper {
             "PageUp" => Some(DqKey::PageUp),
             "PageDown" => Some(DqKey::PageDown),
             "End" => Some(DqKey::End),
-            // maybe incorrect, but does correct in typing
+            // belows have passed the simulate test
             "Backquote" => Some(DqKey::Grave),
             "Minus" => Some(DqKey::Minus),
             "Equal" => Some(DqKey::Equal),
@@ -485,7 +486,7 @@ impl KeyboardMapper {
             EnigoKey::PageUp => Some("PageUp"),
             EnigoKey::PageDown => Some("PageDown"),
             EnigoKey::End => Some("End"),
-            // maybe incorrect, but does correct in typing
+            // belows have passed the simulate test
             EnigoKey::Layout('`') => Some("Backquote"),
             EnigoKey::Layout('-') => Some("Minus"),
             EnigoKey::Layout('=') => Some("Equal"),
@@ -575,7 +576,7 @@ impl KeyboardMapper {
             "PageUp" => Some(EnigoKey::PageUp),
             "PageDown" => Some(EnigoKey::PageDown),
             "End" => Some(EnigoKey::End),
-            // maybe incorrect, but does correct in typing
+            // belows have passed the simulate test
             "Backquote" => Some(EnigoKey::Layout('`')),
             "Minus" | "NumpadSubtract" => Some(EnigoKey::Layout('-')),
             "Equal" => Some(EnigoKey::Layout('=')),
