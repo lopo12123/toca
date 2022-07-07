@@ -3,7 +3,7 @@ use enigo::{Enigo, KeyboardControllable};
 use crate::{
     mapper::KeyboardMapper,
     record::{KeyboardAction, KeyboardEv},
-    set_timeout,
+    utils::set_timeout,
 };
 
 // region keyboard event player
