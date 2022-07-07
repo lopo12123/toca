@@ -1,4 +1,4 @@
-use enigo::{Enigo, Key, KeyboardControllable, MouseButton, MouseControllable};
+use enigo::{Enigo, KeyboardControllable};
 use crate::{
     mapper::KeyboardMapper,
     record::{KeyboardAction, KeyboardEv},
@@ -59,101 +59,69 @@ impl KeyboardPlayer {
 }
 // endregion
 
+// region unit test
+#[cfg(test)]
+mod test {
+    use super::*;
+    use enigo::Key;
 
-/// type of action to play in pipeline
-pub enum Action {
-    /// mouse move absolutely
-    MouseMoveAbsolute { delay: u64, target: [i32; 2] },
-    /// mouse move relatively
-    MouseMoveRelative { delay: u64, offset: [i32; 2] },
-    /// mouse left-click
-    MouseLeft { delay: u64 },
-    /// mouse right-click
-    MouseRight { delay: u64 },
-    /// key click
-    KeyClick { delay: u64, key: Key },
-    /// key press
-    KeyPress { delay: u64, key: Key, duration: u64 },
-}
-
-pub struct Toca {
-    instance: Enigo,
-    total_time: u64,
-    actions: Vec<Action>,
-}
-
-#[allow(unused)]
-impl Toca {
-    // constructor.
-    pub fn new() -> Toca {
-        Toca {
-            instance: Enigo::new(),
-            total_time: 0,
-            actions: vec![],
-        }
+    #[test]
+    fn enigo_key_visible() {
+        let mut en = enigo::Enigo::new();
+        set_timeout(|| {
+            en.key_click(Key::Layout('`'));
+            en.key_click(Key::Layout('-'));
+            en.key_click(Key::Layout('='));
+            en.key_click(Key::Layout('['));
+            en.key_click(Key::Layout(']'));
+            en.key_click(Key::Layout(','));
+            en.key_click(Key::Layout('.'));
+            en.key_click(Key::Layout(';'));
+            en.key_click(Key::Layout('\''));
+            en.key_click(Key::Layout('/'));
+            en.key_click(Key::Layout('\\'));
+        }, 3000);
     }
 
-    // how many time it takes for whole actions to play.
-    pub fn get_time_count(&self) -> u64 {
-        self.total_time
-    }
+    #[test]
+    fn enigo_key_invisible() {
+        let mut en = enigo::Enigo::new();
+        set_timeout(|| {
+            en.key_click(Key::F1);
+            en.key_click(Key::F2);
+            en.key_click(Key::F3);
+            en.key_click(Key::F4);
+            en.key_click(Key::F5);
+            en.key_click(Key::F6);
+            en.key_click(Key::F7);
+            en.key_click(Key::F8);
+            en.key_click(Key::F9);
+            en.key_click(Key::F10);
+            en.key_click(Key::F11);
+            en.key_click(Key::F12);
 
-    // how many actions in the queue
-    pub fn get_action_count(&self) -> usize {
-        self.actions.len()
-    }
+            en.key_click(Key::Escape);
+            en.key_click(Key::Tab);
+            en.key_click(Key::CapsLock);
+            en.key_click(Key::Shift);
+            en.key_click(Key::Control);
+            en.key_click(Key::Alt);
+            en.key_click(Key::Space);
+            en.key_click(Key::UpArrow);
+            en.key_click(Key::RightArrow);
+            en.key_click(Key::DownArrow);
+            en.key_click(Key::LeftArrow);
+            en.key_click(Key::Return);
+            en.key_click(Key::Backspace);
+            en.key_click(Key::Delete);
+            en.key_click(Key::Home);
+            en.key_click(Key::PageUp);
+            en.key_click(Key::PageDown);
+            en.key_click(Key::End);
 
-    // add an action into the queue
-    pub fn add_action(&mut self, action: Action) {
-        self.actions.push(action);
-    }
-    // add some actions into the queue
-    pub fn add_actions(&mut self, actions: &mut Vec<Action>) {
-        self.actions.append(actions);
-    }
-
-    // play all actions in action queue.
-    pub fn play_actions(&mut self) {
-        let mut p = 0;
-        while p < self.actions.len() {
-            match self.actions[p] {
-                Action::MouseMoveAbsolute { delay, target } => {
-                    set_timeout(|| {
-                        self.instance.mouse_move_to(target[0], target[1]);
-                    }, delay);
-                }
-                Action::MouseMoveRelative { delay, offset } => {
-                    set_timeout(|| {
-                        self.instance.mouse_move_relative(offset[0], offset[1]);
-                    }, delay);
-                }
-                Action::MouseLeft { delay } => {
-                    set_timeout(|| {
-                        self.instance.mouse_click(MouseButton::Left);
-                    }, delay);
-                }
-                Action::MouseRight { delay } => {
-                    set_timeout(|| {
-                        self.instance.mouse_click(MouseButton::Right);
-                    }, delay);
-                }
-                Action::KeyClick { delay, key } => {
-                    set_timeout(|| {
-                        self.instance.key_click(key);
-                    }, delay);
-                }
-                Action::KeyPress { delay, key, duration } => {
-                    set_timeout(|| {
-                        self.instance.key_down(key);
-
-                        set_timeout(|| {
-                            self.instance.key_up(key);
-                        }, duration);
-                    }, delay);
-                }
-            };
-
-            p += 1;
-        }
+            en.key_click(Key::Meta);
+        }, 6000);
     }
 }
+
+// endregion
