@@ -33,23 +33,3 @@ fn play_mock_keys() {
         player.do_play();
     }, 3000);
 }
-
-#[test]
-fn enigo_test() {
-    let mut en = enigo::Enigo::new();
-    set_timeout(|| {
-        en.key_click(Key::Layout('0'));
-        en.key_click(Key::Layout('2'));
-        en.key_click(Key::Layout('4'));
-        en.key_click(Key::Layout('l'));
-        en.key_click(Key::Layout('o'));
-        en.key_click(Key::Layout('`'));
-        en.key_click(Key::Layout('-'));
-        en.key_click(Key::Layout('='));
-        en.key_click(Key::Layout('/'));
-        en.key_click(Key::Layout('\\'));
-        en.key_click(Key::Layout(';'));
-        en.key_click(Key::Layout('\''));
-        en.key_click(Key::Layout('*'));
-    }, 3000);
-}
