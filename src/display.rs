@@ -1,10 +1,6 @@
 use std::sync::{Arc, Mutex};
-use enigo::{Enigo, KeyboardControllable};
-use crate::{
-    mapper::KeyboardMapper,
-    record::{KeyboardAction, KeyboardEv},
-    utils::set_timeout,
-};
+use enigo::{Enigo, KeyboardControllable, MouseControllable};
+use crate::{KeyboardMapper, MouseEv, KeyboardAction, KeyboardEv, utils::set_timeout, MouseAction, MouseMapper};
 
 // region keyboard event player
 pub struct KeyboardPlayer {
@@ -84,10 +80,93 @@ impl KeyboardPlayer {
 }
 // endregion
 
+// region mouse event player
+pub struct MousePlayer {
+    /// simulator
+    instance: Enigo,
+    /// if is playing
+    playing: Arc<Mutex<bool>>,
+    /// duration of the action
+    duration: u64,
+    /// events in the action
+    ev_queue: Vec<MouseEv>,
+}
+
+impl MousePlayer {
+    pub fn new() -> MousePlayer {
+        MousePlayer {
+            instance: Enigo::new(),
+            playing: Arc::new(Mutex::new(false)),
+            duration: 0,
+            ev_queue: vec![],
+        }
+    }
+
+    /// load an action record to play later.
+    pub fn load(&mut self, action: MouseAction) -> Result<(), ()> {
+        return if *self.playing.lock().unwrap() {
+            Err(())
+        } else {
+            self.ev_queue = action.evs;
+            self.duration = action.till;
+            Ok(())
+        };
+    }
+
+    /// auto-play keyboard event using simulator.
+    pub fn do_play(&mut self) -> Result<(), ()> {
+        return if *self.playing.lock().unwrap() {
+            Err(())
+        } else {
+            *self.playing.lock().unwrap() = true;
+            let mut last_act_time = 0;
+            if self.ev_queue.len() > 0 && self.duration > 0 {
+                for ev in self.ev_queue.iter() {
+                    if ev.timestamp <= last_act_time {
+                        match MouseMapper::parse_ev_name(ev.ev_name) {
+                            (enigo_button, true) => {
+                                let (x, y) = ev.position;
+                                self.instance.mouse_move_to(x, y);
+                                self.instance.mouse_down(enigo_button);
+                            }
+                            (enigo_button, false) => {
+                                let (x, y) = ev.position;
+                                self.instance.mouse_move_to(x, y);
+                                self.instance.mouse_up(enigo_button);
+                            }
+                        }
+                    } else {
+                        set_timeout(|| {
+                            match MouseMapper::parse_ev_name(ev.ev_name) {
+                                (enigo_button, true) => {
+                                    let (x, y) = ev.position;
+                                    self.instance.mouse_move_to(x, y);
+                                    self.instance.mouse_down(enigo_button);
+                                }
+                                (enigo_button, false) => {
+                                    let (x, y) = ev.position;
+                                    self.instance.mouse_move_to(x, y);
+                                    self.instance.mouse_up(enigo_button);
+                                }
+                            }
+                        }, ev.timestamp - last_act_time);
+                    }
+
+                    last_act_time = ev.timestamp;
+                }
+            }
+            *self.playing.lock().unwrap() = false;
+            Ok(())
+        };
+    }
+}
+// endregion
+
 // region unit test 此处使用了覆盖率测试, 确保所有的映射都是有效的
 #[cfg(test)]
 mod test {
     use super::*;
+    use device_query::Keycode;
     use enigo::Key;
 
     /// **pass** 0-9 a-z
@@ -190,6 +269,104 @@ mod test {
             en.key_click(Key::PageDown);
             en.key_click(Key::End);
         }, 3000);
+    }
+
+    #[test]
+    fn display_keyboard() {
+        // mock data
+        let mock_action = KeyboardAction {
+            evs: vec![
+                KeyboardEv {
+                    code: Keycode::H,
+                    press: true,
+                    timestamp: 500,
+                },
+                KeyboardEv {
+                    code: Keycode::E,
+                    press: true,
+                    timestamp: 1500,
+                },
+                KeyboardEv {
+                    code: Keycode::L,
+                    press: true,
+                    timestamp: 2000,
+                },
+                KeyboardEv {
+                    code: Keycode::L,
+                    press: true,
+                    timestamp: 2500,
+                },
+                KeyboardEv {
+                    code: Keycode::O,
+                    press: true,
+                    timestamp: 3000,
+                },
+                KeyboardEv {
+                    code: Keycode::Space,
+                    press: true,
+                    timestamp: 3500,
+                },
+                KeyboardEv {
+                    code: Keycode::W,
+                    press: true,
+                    timestamp: 4000,
+                },
+                KeyboardEv {
+                    code: Keycode::O,
+                    press: true,
+                    timestamp: 4500,
+                },
+                KeyboardEv {
+                    code: Keycode::R,
+                    press: true,
+                    timestamp: 5000,
+                },
+                KeyboardEv {
+                    code: Keycode::L,
+                    press: true,
+                    timestamp: 5500,
+                },
+                KeyboardEv {
+                    code: Keycode::D,
+                    press: true,
+                    timestamp: 6000,
+                },
+                KeyboardEv {
+                    code: Keycode::LShift,
+                    press: true,
+                    timestamp: 6500,
+                },
+                KeyboardEv {
+                    code: Keycode::Numpad1,
+                    press: true,
+                    timestamp: 6600,
+                },
+                KeyboardEv {
+                    code: Keycode::LShift,
+                    press: false,
+                    timestamp: 6700,
+                },
+            ],
+            till: 6700,
+        };
+
+        // simulate
+        let mut player = KeyboardPlayer::new();
+        match player.load(mock_action) {
+            Ok(_) => {
+                set_timeout(|| {
+                    match player.do_play() {
+                        Ok(_) => {
+                            println!("done.")
+                        }
+                        Err(_) => {
+                            println!("failed.")
+                        }
+                    }
+                }, 3_000)
+            }
+            Err(_) => println!("error when load actions.")
+        }
     }
 }
 // endregion
