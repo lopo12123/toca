@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate lazy_static;
+
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -8,10 +11,10 @@ pub fn set_timeout<T>(mut callback: T, ms: u64)
     callback();
 }
 
-pub use device_query::Keycode;
-
-mod mapper;
 mod global_store;
 
+pub mod mapper;
 pub mod record;
 pub mod display;
+
+pub use device_query::Keycode;
