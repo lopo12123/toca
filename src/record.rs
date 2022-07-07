@@ -23,8 +23,6 @@ pub struct KeyboardAction {
 pub struct KeyboardRecorder {
     /// stop signal
     recording: Arc<Mutex<bool>>,
-    /// duration of whole action (in ms)
-    duration: u64,
     /// Here, we've wrapped your vector in a Arc<Mutex<T>> so we can
     /// write to it inside our closure.
     ev_queue: Arc<Mutex<Vec<KeyboardEv>>>,
@@ -34,7 +32,6 @@ impl KeyboardRecorder {
     pub fn new() -> KeyboardRecorder {
         KeyboardRecorder {
             recording: Arc::new(Mutex::new(false)),
-            duration: 0,
             ev_queue: Arc::new(Mutex::new(vec![])),
         }
     }
@@ -43,15 +40,10 @@ impl KeyboardRecorder {
         (*self.ev_queue.lock().unwrap()).clone()
     }
 
-    pub fn get_duration(&self) -> u64 {
-        self.duration
-    }
-
     /// start recording mouse events.
     pub fn do_record(&mut self, stop_code: Keycode) -> KeyboardAction {
-        // start recording: clear records and duration, set the signal
+        // start recording: clear records and set the signal
         *self.ev_queue.lock().unwrap() = vec![];
-        self.duration = 0;
         *self.recording.lock().unwrap() = true;
 
         // instance
@@ -97,11 +89,10 @@ impl KeyboardRecorder {
         // a block loop till the stop key is pressed.
         loop {
             if !*self.recording.lock().unwrap() {
-                self.duration = timeline.elapsed().as_millis() as u64;
                 // jump out of the loop, the guard(s) will `drop` then.
                 return KeyboardAction {
                     evs: (*self.ev_queue.lock().unwrap()).clone(),
-                    till: self.duration,
+                    till: timeline.elapsed().as_millis() as u64,
                 };
             }
         }
@@ -145,8 +136,6 @@ pub struct MouseAction {
 pub struct MouseRecorder {
     /// stop signal
     recording: Arc<Mutex<bool>>,
-    /// duration of whole action (in ms)
-    duration: u64,
     /// Here, we've wrapped your vector in a Arc<Mutex<>> so we can
     /// write to it inside our closure.
     ev_queue: Arc<Mutex<Vec<MouseEv>>>,
@@ -156,7 +145,6 @@ impl MouseRecorder {
     pub fn new() -> MouseRecorder {
         MouseRecorder {
             recording: Arc::new(Mutex::new(false)),
-            duration: 0,
             ev_queue: Arc::new(Mutex::new(vec![])),
         }
     }
@@ -165,15 +153,10 @@ impl MouseRecorder {
         (*self.ev_queue.lock().unwrap()).clone()
     }
 
-    pub fn get_duration(&self) -> u64 {
-        self.duration
-    }
-
     /// start recording mouse events.
     pub fn do_record(&mut self, stop_code: Keycode) -> MouseAction {
-        // start recording: clear records and duration, set the signal
+        // start recording: clear records and set the signal
         *self.ev_queue.lock().unwrap() = vec![];
-        self.duration = 0;
         *self.recording.lock().unwrap() = true;
 
         // instance
@@ -263,11 +246,10 @@ impl MouseRecorder {
         // a block loop till the stop key is pressed.
         loop {
             if !*self.recording.lock().unwrap() {
-                self.duration = timeline.elapsed().as_millis() as u64;
                 // jump out of the loop, the guard(s) will `drop` then.
                 return MouseAction {
                     evs: (*self.ev_queue.lock().unwrap()).clone(),
-                    till: self.duration,
+                    till: timeline.elapsed().as_millis() as u64,
                 };
             }
         }
@@ -308,7 +290,7 @@ mod test {
 
         println!("record start. (press ESC to stop.)");
         let action = recorder.do_record(Keycode::Escape);
-        println!("record stop. duration: {}ms", action.till);
+        println!("record stop. last: {}ms", action.till);
 
         for ev in action.evs {
             println!("[{}ms]: {:?} at {:?}", ev.timestamp, ev.ev_name, ev.position);
