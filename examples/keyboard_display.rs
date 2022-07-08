@@ -3,7 +3,32 @@ extern crate toca;
 use device_query::Keycode;
 use toca::{KeyboardAction, KeyboardEv, KeyboardPlayer, set_timeout};
 
-fn main() {
+fn from_string() {
+    // mock action
+    let mock_action = KeyboardAction::from_string("{\"evs\":[{\"code\":\"KeyH\",\"press\":true,\"timestamp\":2065},{\"code\":\"KeyH\",\"press\":false,\"timestamp\":2144},{\"code\":\"KeyE\",\"press\":true,\"timestamp\":2391},{\"code\":\"KeyE\",\"press\":false,\"timestamp\":2484},{\"code\":\"KeyL\",\"press\":true,\"timestamp\":2620},{\"code\":\"KeyL\",\"press\":false,\"timestamp\":2700},{\"code\":\"KeyL\",\"press\":true,\"timestamp\":2753},{\"code\":\"KeyL\",\"press\":false,\"timestamp\":2846},{\"code\":\"KeyO\",\"press\":true,\"timestamp\":3109},{\"code\":\"KeyO\",\"press\":false,\"timestamp\":3194},{\"code\":\"Space\",\"press\":true,\"timestamp\":3501},{\"code\":\"Space\",\"press\":false,\"timestamp\":3612},{\"code\":\"KeyW\",\"press\":true,\"timestamp\":3797},{\"code\":\"KeyW\",\"press\":false,\"timestamp\":3878},{\"code\":\"KeyO\",\"press\":true,\"timestamp\":3997},{\"code\":\"KeyO\",\"press\":false,\"timestamp\":4075},{\"code\":\"KeyR\",\"press\":true,\"timestamp\":4123},{\"code\":\"KeyR\",\"press\":false,\"timestamp\":4223},{\"code\":\"KeyL\",\"press\":true,\"timestamp\":4483},{\"code\":\"KeyL\",\"press\":false,\"timestamp\":4569},{\"code\":\"KeyD\",\"press\":true,\"timestamp\":4684},{\"code\":\"KeyD\",\"press\":false,\"timestamp\":4787},{\"code\":\"ShiftRight\",\"press\":true,\"timestamp\":5004},{\"code\":\"Digit1\",\"press\":true,\"timestamp\":5146},{\"code\":\"Digit1\",\"press\":false,\"timestamp\":5235},{\"code\":\"ShiftRight\",\"press\":false,\"timestamp\":5313}],\"till\":6668}").unwrap();
+
+    // simulate
+    let mut player = KeyboardPlayer::new();
+    match player.load(mock_action) {
+        Ok(_) => {
+            set_timeout(|| {
+                match player.do_play() {
+                    Ok(_) => {
+                        println!("done.")
+                    }
+                    Err(_) => {
+                        println!("failed.")
+                    }
+                }
+            }, 3_000)
+        }
+        Err(_) => println!("error when load actions.")
+    }
+
+    // auto print: hello world!
+}
+
+fn from_struct() {
     // mock action
     let mock_action = KeyboardAction {
         evs: vec![
@@ -100,4 +125,9 @@ fn main() {
     }
 
     // auto print: hello world!
+}
+
+fn main() {
+    // from_string();
+    from_struct();
 }
