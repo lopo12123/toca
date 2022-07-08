@@ -1,6 +1,9 @@
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use device_query::{DeviceEvents, DeviceQuery, DeviceState, Keycode};
+use serde::{Deserialize, Serialize};
+use serde_json::{from_str, to_string, Result as SerdeResult};
+use crate::KeyboardMapper;
 
 // region keyboard event recorder
 /// single record of keyboard event
@@ -18,6 +21,77 @@ pub struct KeyboardEv {
 pub struct KeyboardAction {
     pub evs: Vec<KeyboardEv>,
     pub till: u64,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct KeyboardEvStringCode {
+    /// key code
+    pub code: String,
+    /// press or release
+    pub press: bool,
+    /// timestamp from the start
+    pub timestamp: u64,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct KeyboardActionStringCode {
+    pub evs: Vec<KeyboardEvStringCode>,
+    pub till: u64,
+}
+
+impl KeyboardAction {
+    pub fn from_string(string_source: &str) -> Result<KeyboardAction, ()> {
+        let action_string_code: SerdeResult<KeyboardActionStringCode> = from_str(string_source);
+        match action_string_code {
+            Ok(_action) => {
+                let mut action = KeyboardAction {
+                    evs: vec![],
+                    till: _action.till,
+                };
+
+                for ev in _action.evs.iter() {
+                    match KeyboardMapper::front_to_dq(&ev.code) {
+                        Some(code) => {
+                            action.evs.push(KeyboardEv {
+                                code,
+                                press: ev.press,
+                                timestamp: ev.timestamp,
+                            })
+                        }
+                        None => ()
+                    }
+                }
+
+                Ok(action)
+            }
+            Err(_) => Err(())
+        }
+    }
+
+    pub fn to_string(&self) -> String {
+        let mut action_string_code = KeyboardActionStringCode {
+            evs: vec![],
+            till: self.till,
+        };
+
+        for ev in self.evs.iter() {
+            match KeyboardMapper::dq_to_front(ev.code) {
+                Some(code) => {
+                    action_string_code.evs.push(KeyboardEvStringCode {
+                        code: String::from(code),
+                        press: ev.press,
+                        timestamp: ev.timestamp,
+                    })
+                }
+                None => ()
+            }
+        }
+
+        match to_string(&action_string_code) {
+            Ok(s) => s,
+            Err(_) => String::from("Error")
+        }
+    }
 }
 
 pub struct KeyboardRecorder {
@@ -285,6 +359,18 @@ mod test {
         for ev in action.evs {
             println!("[{}ms]: {} {}", ev.timestamp, (if ev.press { "Press" } else { "Release" }), ev.code);
         }
+    }
+
+    /// 键盘行为录制测试 - 打印出 JSON 字符串
+    #[test]
+    fn keyboard_recorder_to_string_test() {
+        let mut recorder = KeyboardRecorder::new();
+
+        println!("record start. (press any key to record, press ESC to stop.)");
+        let action = recorder.do_record(Keycode::Escape);
+        println!("record stop. duration: {}ms", action.till);
+
+        println!("action in string: \n{:#?}", action.to_string());
     }
 
     /// 鼠标行为录制测试 - 无断言, 需要自行判断输出是否正确

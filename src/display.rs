@@ -381,6 +381,38 @@ mod test {
 
     /// **pass**
     #[test]
+    fn display_keyboard_from_string() {
+        // mock action
+        let mock_action = KeyboardAction::from_string("{\"evs\":[{\"code\":\"Digit1\",\"press\":true,\"timestamp\":1242},{\"code\":\"Digit1\",\"press\":false,\"timestamp\":1359},{\"code\":\"Digit3\",\"press\":true,\"timestamp\":1976},{\"code\":\"Digit3\",\"press\":false,\"timestamp\":2098},{\"code\":\"Digit5\",\"press\":true,\"timestamp\":2603},{\"code\":\"Digit5\",\"press\":false,\"timestamp\":2717},{\"code\":\"KeyS\",\"press\":true,\"timestamp\":3637},{\"code\":\"KeyS\",\"press\":false,\"timestamp\":3719},{\"code\":\"KeyV\",\"press\":true,\"timestamp\":3901},{\"code\":\"KeyV\",\"press\":false,\"timestamp\":4026},{\"code\":\"Space\",\"press\":true,\"timestamp\":4481},{\"code\":\"Space\",\"press\":false,\"timestamp\":4570}],\"till\":5143}");
+
+        if let Err(_) = mock_action {
+            println!("error.");
+            return;
+        }
+
+        let mock_action = mock_action.unwrap();
+
+        // simulate
+        let mut player = KeyboardPlayer::new();
+        match player.load(mock_action) {
+            Ok(_) => {
+                set_timeout(|| {
+                    match player.do_play() {
+                        Ok(_) => {
+                            println!("done.")
+                        }
+                        Err(_) => {
+                            println!("failed.")
+                        }
+                    }
+                }, 3_000)
+            }
+            Err(_) => println!("error when load actions.")
+        }
+    }
+
+    /// **pass**
+    #[test]
     fn display_mouse() {
         // mock action
         let mock_action = MouseAction {
