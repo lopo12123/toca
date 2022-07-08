@@ -176,6 +176,7 @@ mod test {
     use super::*;
     use device_query::Keycode;
     use enigo::Key;
+    use crate::MouseEventName;
 
     /// **pass** 0-9 a-z
     #[test]
@@ -281,7 +282,7 @@ mod test {
 
     #[test]
     fn display_keyboard() {
-        // mock data
+        // mock action
         let mock_action = KeyboardAction {
             evs: vec![
                 KeyboardEv {
@@ -374,6 +375,64 @@ mod test {
                 }, 3_000)
             }
             Err(_) => println!("error when load actions.")
+        }
+    }
+
+    #[test]
+    fn display_mouse() {
+        // mock action
+        let mock_action = MouseAction {
+            evs: vec![
+                // MouseEv {
+                //     ev_name: MouseEventName::LeftDown,
+                //     position: (505, 1246),
+                //     timestamp: 160,
+                // },
+                // MouseEv {
+                //     ev_name: MouseEventName::LeftUp,
+                //     position: (405, 1246),
+                //     timestamp: 224,
+                // },
+                // MouseEv {
+                //     ev_name: MouseEventName::RightDown,
+                //     position: (75, 1208),
+                //     timestamp: 1200,
+                // },
+                // MouseEv {
+                //     ev_name: MouseEventName::RightUp,
+                //     position: (75, 1208),
+                //     timestamp: 1280,
+                // },
+                MouseEv {
+                    ev_name: MouseEventName::LeftDown,
+                    position: (123, 27),
+                    timestamp: 2251,
+                },
+                MouseEv {
+                    ev_name: MouseEventName::LeftUp,
+                    position: (218, 345),
+                    timestamp: 3795,
+                },
+            ],
+            till: 3795,
+        };
+
+        // simulate
+        let mut player = MousePlayer::new();
+        match player.load(mock_action) {
+            Ok(_) => {
+                set_timeout(|| {
+                    match player.do_play() {
+                        Ok(_) => {
+                            println!("done.");
+                        }
+                        Err(_) => {
+                            println!("failed.");
+                        }
+                    }
+                }, 3000);
+            }
+            Err(_) => ()
         }
     }
 }
