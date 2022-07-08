@@ -1,5 +1,4 @@
 use device_query::Keycode;
-use enigo::{KeyboardControllable};
 use toca::display::KeyboardPlayer;
 use toca::record::{KeyboardAction, KeyboardEv};
 use toca::set_timeout;
