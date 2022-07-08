@@ -2,8 +2,8 @@ use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use device_query::{DeviceEvents, DeviceQuery, DeviceState, Keycode};
 use serde::{Deserialize, Serialize};
-use serde_json::{from_str, to_string, Result as SerdeResult};
-use crate::KeyboardMapper;
+use serde_json::{from_str as json_parse, to_string as json_stringify, Result as SerdeResult};
+use crate::{KeyboardMapper};
 
 // region keyboard event recorder
 /// single record of keyboard event
@@ -24,7 +24,7 @@ pub struct KeyboardAction {
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct KeyboardEvStringCode {
+pub struct KeyboardEvSerializable {
     /// key code
     pub code: String,
     /// press or release
@@ -34,14 +34,14 @@ pub struct KeyboardEvStringCode {
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct KeyboardActionStringCode {
-    pub evs: Vec<KeyboardEvStringCode>,
+pub struct KeyboardActionSerializable {
+    pub evs: Vec<KeyboardEvSerializable>,
     pub till: u64,
 }
 
 impl KeyboardAction {
     pub fn from_string(string_source: &str) -> Result<KeyboardAction, ()> {
-        let action_string_code: SerdeResult<KeyboardActionStringCode> = from_str(string_source);
+        let action_string_code: SerdeResult<KeyboardActionSerializable> = json_parse(string_source);
         match action_string_code {
             Ok(_action) => {
                 let mut action = KeyboardAction {
@@ -68,8 +68,8 @@ impl KeyboardAction {
         }
     }
 
-    pub fn to_string(&self) -> String {
-        let mut action_string_code = KeyboardActionStringCode {
+    pub fn to_string(&self) -> Result<String, ()> {
+        let mut action_string_code = KeyboardActionSerializable {
             evs: vec![],
             till: self.till,
         };
@@ -77,7 +77,7 @@ impl KeyboardAction {
         for ev in self.evs.iter() {
             match KeyboardMapper::dq_to_front(ev.code) {
                 Some(code) => {
-                    action_string_code.evs.push(KeyboardEvStringCode {
+                    action_string_code.evs.push(KeyboardEvSerializable {
                         code: String::from(code),
                         press: ev.press,
                         timestamp: ev.timestamp,
@@ -87,9 +87,9 @@ impl KeyboardAction {
             }
         }
 
-        match to_string(&action_string_code) {
-            Ok(s) => s,
-            Err(_) => String::from("Error")
+        match json_stringify(&action_string_code) {
+            Ok(s) => Ok(s),
+            Err(_) => Err(())
         }
     }
 }
@@ -191,11 +191,17 @@ impl KeyboardRecorder {
 /// single record of mouse event
 #[derive(Copy, Clone, Debug)]
 pub enum MouseEventName {
+    // 1
     LeftDown,
+    // 2
     LeftUp,
+    // 3
     RightDown,
+    // 4
     RightUp,
+    // 5
     MidDown,
+    // 6
     MidUp,
 }
 
@@ -213,6 +219,153 @@ pub struct MouseEv {
 pub struct MouseAction {
     pub evs: Vec<MouseEv>,
     pub till: u64,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct MouseEvSerializable {
+    /// mouse event name
+    /// 1: LeftDown
+    /// 2: LeftUp
+    /// 3: RightDown
+    /// 4: RightUp
+    /// 5: MidDown
+    /// 6: MidUp
+    /// _: invalid
+    pub ev_name: usize,
+    /// position
+    pub position: [i32; 2],
+    /// timestamp from the start
+    pub timestamp: u64,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct MouseActionSerializable {
+    pub evs: Vec<MouseEvSerializable>,
+    pub till: u64,
+}
+
+impl MouseAction {
+    pub fn from_string(string_source: &str) -> Result<MouseAction, ()> {
+        let action_string_code: SerdeResult<MouseActionSerializable> = json_parse(string_source);
+        match action_string_code {
+            Ok(_action) => {
+                let mut action = MouseAction {
+                    evs: vec![],
+                    till: _action.till,
+                };
+
+                for ev in _action.evs.iter() {
+                    match ev.ev_name {
+                        1 => {
+                            action.evs.push(MouseEv {
+                                ev_name: MouseEventName::LeftDown,
+                                position: (ev.position[0], ev.position[1]),
+                                timestamp: ev.timestamp,
+                            })
+                        }
+                        2 => {
+                            action.evs.push(MouseEv {
+                                ev_name: MouseEventName::LeftUp,
+                                position: (ev.position[0], ev.position[1]),
+                                timestamp: ev.timestamp,
+                            })
+                        }
+                        3 => {
+                            action.evs.push(MouseEv {
+                                ev_name: MouseEventName::RightDown,
+                                position: (ev.position[0], ev.position[1]),
+                                timestamp: ev.timestamp,
+                            })
+                        }
+                        4 => {
+                            action.evs.push(MouseEv {
+                                ev_name: MouseEventName::RightUp,
+                                position: (ev.position[0], ev.position[1]),
+                                timestamp: ev.timestamp,
+                            })
+                        }
+                        5 => {
+                            action.evs.push(MouseEv {
+                                ev_name: MouseEventName::MidDown,
+                                position: (ev.position[0], ev.position[1]),
+                                timestamp: ev.timestamp,
+                            })
+                        }
+                        6 => {
+                            action.evs.push(MouseEv {
+                                ev_name: MouseEventName::MidUp,
+                                position: (ev.position[0], ev.position[1]),
+                                timestamp: ev.timestamp,
+                            })
+                        }
+                        _ => ()
+                    }
+                }
+
+                Ok(action)
+            }
+            Err(_) => Err(())
+        }
+    }
+
+    pub fn to_string(&self) -> Result<String, ()> {
+        let mut action_string_code = MouseActionSerializable {
+            evs: vec![],
+            till: self.till,
+        };
+
+        for ev in self.evs.iter() {
+            match ev.ev_name {
+                MouseEventName::LeftDown => {
+                    action_string_code.evs.push(MouseEvSerializable {
+                        ev_name: 1,
+                        position: [ev.position.0, ev.position.1],
+                        timestamp: ev.timestamp,
+                    })
+                }
+                MouseEventName::LeftUp => {
+                    action_string_code.evs.push(MouseEvSerializable {
+                        ev_name: 2,
+                        position: [ev.position.0, ev.position.1],
+                        timestamp: ev.timestamp,
+                    })
+                }
+                MouseEventName::RightDown => {
+                    action_string_code.evs.push(MouseEvSerializable {
+                        ev_name: 3,
+                        position: [ev.position.0, ev.position.1],
+                        timestamp: ev.timestamp,
+                    })
+                }
+                MouseEventName::RightUp => {
+                    action_string_code.evs.push(MouseEvSerializable {
+                        ev_name: 4,
+                        position: [ev.position.0, ev.position.1],
+                        timestamp: ev.timestamp,
+                    })
+                }
+                MouseEventName::MidDown => {
+                    action_string_code.evs.push(MouseEvSerializable {
+                        ev_name: 5,
+                        position: [ev.position.0, ev.position.1],
+                        timestamp: ev.timestamp,
+                    })
+                }
+                MouseEventName::MidUp => {
+                    action_string_code.evs.push(MouseEvSerializable {
+                        ev_name: 6,
+                        position: [ev.position.0, ev.position.1],
+                        timestamp: ev.timestamp,
+                    })
+                }
+            }
+        }
+
+        match json_stringify(&action_string_code) {
+            Ok(s) => Ok(s),
+            Err(_) => Err(())
+        }
+    }
 }
 
 pub struct MouseRecorder {
@@ -349,7 +502,7 @@ mod test {
 
     /// 键盘行为录制测试 - 无断言, 需要自行判断输出是否正确
     #[test]
-    fn keyboard_recorder_test() {
+    fn keyboard_recorder() {
         let mut recorder = KeyboardRecorder::new();
 
         println!("record start. (press any key to record, press ESC to stop.)");
@@ -363,19 +516,19 @@ mod test {
 
     /// 键盘行为录制测试 - 打印出 JSON 字符串
     #[test]
-    fn keyboard_recorder_to_string_test() {
+    fn keyboard_recorder_to_string() {
         let mut recorder = KeyboardRecorder::new();
 
         println!("record start. (press any key to record, press ESC to stop.)");
         let action = recorder.do_record(Keycode::Escape);
         println!("record stop. duration: {}ms", action.till);
 
-        println!("action in string: \n{:#?}", action.to_string());
+        println!("action in string: \n{:#?}", action.to_string().unwrap());
     }
 
     /// 鼠标行为录制测试 - 无断言, 需要自行判断输出是否正确
     #[test]
-    fn mouse_recorder_test() {
+    fn mouse_recorder() {
         let mut recorder = MouseRecorder::new();
 
         println!("record start. (press ESC to stop.)");
@@ -385,6 +538,18 @@ mod test {
         for ev in action.evs {
             println!("[{}ms]: {:?} at {:?}", ev.timestamp, ev.ev_name, ev.position);
         }
+    }
+
+    /// 鼠标行为录制测试 - 打印出 JSON 字符串
+    #[test]
+    fn mouse_recorder_to_string() {
+        let mut recorder = MouseRecorder::new();
+
+        println!("record start. (press ESC to stop.)");
+        let action = recorder.do_record(Keycode::Escape);
+        println!("record stop. last: {}ms", action.till);
+        
+        println!("action in string: \n{:#?}", action.to_string().unwrap());
     }
 }
 // endregion

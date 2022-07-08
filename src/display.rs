@@ -417,39 +417,61 @@ mod test {
         // mock action
         let mock_action = MouseAction {
             evs: vec![
-                // MouseEv {
-                //     ev_name: MouseEventName::LeftDown,
-                //     position: (505, 1246),
-                //     timestamp: 160,
-                // },
-                // MouseEv {
-                //     ev_name: MouseEventName::LeftUp,
-                //     position: (405, 1246),
-                //     timestamp: 224,
-                // },
-                // MouseEv {
-                //     ev_name: MouseEventName::RightDown,
-                //     position: (75, 1208),
-                //     timestamp: 1200,
-                // },
-                // MouseEv {
-                //     ev_name: MouseEventName::RightUp,
-                //     position: (75, 1208),
-                //     timestamp: 1280,
-                // },
                 MouseEv {
                     ev_name: MouseEventName::LeftDown,
-                    position: (123, 27),
-                    timestamp: 2251,
+                    position: (505, 1246),
+                    timestamp: 160,
                 },
                 MouseEv {
                     ev_name: MouseEventName::LeftUp,
-                    position: (218, 345),
-                    timestamp: 3795,
+                    position: (405, 1246),
+                    timestamp: 224,
+                },
+                MouseEv {
+                    ev_name: MouseEventName::RightDown,
+                    position: (75, 1208),
+                    timestamp: 1200,
+                },
+                MouseEv {
+                    ev_name: MouseEventName::RightUp,
+                    position: (75, 1208),
+                    timestamp: 1280,
                 },
             ],
             till: 3795,
         };
+
+        // simulate
+        let mut player = MousePlayer::new();
+        match player.load(mock_action) {
+            Ok(_) => {
+                set_timeout(|| {
+                    match player.do_play() {
+                        Ok(_) => {
+                            println!("done.");
+                        }
+                        Err(_) => {
+                            println!("failed.");
+                        }
+                    }
+                }, 3000);
+            }
+            Err(_) => ()
+        }
+    }
+
+    /// **pass**
+    #[test]
+    fn display_mouse_from_string() {
+        // mock action
+        let mock_action = MouseAction::from_string("{\"evs\":[{\"ev_name\":1,\"position\":[2041,1391],\"timestamp\":1620},{\"ev_name\":2,\"position\":[2041,1391],\"timestamp\":1716},{\"ev_name\":3,\"position\":[2105,345],\"timestamp\":2484},{\"ev_name\":4,\"position\":[2105,343],\"timestamp\":2548},{\"ev_name\":1,\"position\":[2153,396],\"timestamp\":3252},{\"ev_name\":2,\"position\":[2153,396],\"timestamp\":3356}],\"till\":4625}");
+
+        if let Err(_) = mock_action {
+            println!("error.");
+            return;
+        }
+
+        let mock_action = mock_action.unwrap();
 
         // simulate
         let mut player = MousePlayer::new();
