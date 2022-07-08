@@ -45,19 +45,27 @@ impl KeyboardPlayer {
             if self.ev_queue.len() > 0 && self.duration > 0 {
                 for ev in self.ev_queue.iter() {
                     if ev.timestamp <= last_act_time {
-                        match KeyboardMapper::dq_to_enigo(ev.code) {
-                            Some(key) => {
-                                self.instance.key_click(key);
+                        match (KeyboardMapper::dq_to_enigo(ev.code), ev.press) {
+                            (Some(key), is_press) => {
+                                if is_press {
+                                    self.instance.key_down(key);
+                                } else {
+                                    self.instance.key_up(key);
+                                }
                             }
-                            None => ()
+                            (None, _) => ()
                         }
                     } else {
                         set_timeout(|| {
-                            match KeyboardMapper::dq_to_enigo(ev.code) {
-                                Some(key) => {
-                                    self.instance.key_click(key);
+                            match (KeyboardMapper::dq_to_enigo(ev.code), ev.press) {
+                                (Some(key), is_press) => {
+                                    if is_press {
+                                        self.instance.key_down(key);
+                                    } else {
+                                        self.instance.key_up(key);
+                                    }
                                 }
-                                None => ()
+                                (None, _) => ()
                             }
                         }, ev.timestamp - last_act_time);
                     }
