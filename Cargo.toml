@@ -1,11 +1,16 @@
 [package]
 name = "toca"
-version = "0.1.0"
 edition = "2021"
+version = "0.1.0"
+authors = ["lopo <lopo@zju.edu.cn>"]
+description = "a library for record/display keyboard and mouse actions in a period of time."
+keywords = ["mouse", "keyboard", "record", "simulate"]
+license = "MIT"
+repository = "https://github.com/lopo12123/toca"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 device_query = "1.1.1"
 enigo = "0.0.14"
-lazy_static = "1.4.0"
