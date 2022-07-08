@@ -280,6 +280,7 @@ mod test {
         }, 3000);
     }
 
+    /// **pass**
     #[test]
     fn display_keyboard() {
         // mock action
@@ -378,6 +379,7 @@ mod test {
         }
     }
 
+    /// **pass**
     #[test]
     fn display_mouse() {
         // mock action
